@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ピンクのカロリー手帳</title>
+<style>
+:root{--bg:#fff0f5;--card:#fff;--pk:#ff6fa5;--pk2:#ffd1e3;--tx:#5a2a41;--sub:#a0607c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a1620;--card:#3a1f2c;--pk:#ff7fb0;--pk2:#5a2d42;--tx:#ffe6f0;--sub:#e8a9c3}}
+:root[data-theme="dark"]{--bg:#2a1620;--card:#3a1f2c;--pk:#ff7fb0;--pk2:#5a2d42;--tx:#ffe6f0;--sub:#e8a9c3}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0 auto;background:var(--bg);color:var(--tx);font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;padding:12px;max-width:640px}
+h1{text-align:center;color:var(--pk);font-size:22px;margin:8px 0}
+.tabs{display:flex;gap:6px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:6px 0;z-index:5}
+.tabs button{flex:1;border:0;border-radius:20px;padding:10px 2px;background:var(--pk2);color:var(--tx);font-weight:bold;font-size:13px}
+.tabs button.on{background:var(--pk);color:#fff}
+.card{background:var(--card);border-radius:18px;padding:14px;margin:10px 0;box-shadow:0 3px 10px rgba(255,111,165,.18)}
+h2{font-size:16px;color:var(--pk);margin:0 0 8px}
+h3{font-size:13px;margin:12px 0 4px;color:var(--sub)}
+input,select{border:2px solid var(--pk2);border-radius:12px;padding:8px;font-size:15px;background:var(--card);color:var(--tx);width:100%;margin:3px 0}
+label{font-size:13px;color:var(--sub);display:block;margin:6px 0 2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:2fr 1fr auto;gap:6px;align-items:center}
+.btn{border:0;background:var(--pk);color:#fff;border-radius:20px;padding:9px 14px;font-weight:bold;font-size:14px}
+.li{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--pk2);font-size:14px}
+.li button{border:0;background:var(--pk2);color:var(--tx);border-radius:50%;width:26px;height:26px;margin-left:8px}
+.sub{text-align:right;font-weight:bold;color:var(--pk);margin-top:6px}
+.total{position:sticky;bottom:6px;background:var(--pk);color:#fff;border-radius:20px;padding:12px;text-align:center;font-weight:bold;font-size:17px;margin-top:12px;box-shadow:0 4px 12px rgba(255,111,165,.5)}
+.big{font-size:28px;color:var(--pk);font-weight:bold}
+.note{font-size:12px;color:var(--sub)}
+.timer{font-size:34px;font-weight:bold;color:var(--pk);text-align:center}
+.pane{display:none}.pane.on{display:block}
+.figs{display:flex;gap:8px}.figs div{flex:1;text-align:center;font-size:11px;color:var(--sub);background:var(--bg);border-radius:12px;padding:4px}
+.fg polyline{fill:none;stroke:var(--pk);stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round}
+.fg circle{fill:var(--card);stroke:var(--pk);stroke-width:3.5}
+li{margin:4px 0}
+</style></head><body>
+<h1>🌸 ピンクのカロリー手帳 🌸</h1>
+<div class="tabs" id="tabs"></div>
+
+<div class="pane on" id="p0">
+ <div class="card"><h2>🛒 エフコープの商品を登録</h2>
+ <p class="note">カタログ「えふ」などは毎週商品が変わるため、下のプルダウンは代表的な商品の目安です。カタログの商品は栄養成分表示のkcalを見て、ここで登録すると各食事のプルダウンに出ます。</p>
+ <div class="g3"><input id="cn" placeholder="商品名"><input id="ck" type="number" placeholder="kcal"><button class="btn" onclick="regCoop()">登録</button></div></div>
+ <div id="meals"></div>
+ <div class="card"><h2>⏰ 何時までに食べる?</h2>
+ <label>寝る時間</label><input type="time" id="bed" value="23:30" oninput="upd()">
+ <p id="deadline"></p><p class="note">食べ終わりは寝る3時間前までが目安。お酒や甘いものはさらに早めが◎</p></div>
+ <div class="total">今日の合計:<span id="sum">0</span> kcal</div>
+</div>
+
+<div class="pane" id="p1">
+ <div class="card"><h2>💪 おうち筋トレ7選</h2>
+ <label>1種目の時間(秒)</label>
+ <select id="dur"><option>20</option><option selected>30</option><option>45</option><option>60</option></select>
+ <p class="note">終わったら30秒やすんで次へ。2〜3周がおすすめ</p></div>
+ <div id="ex"></div>
+</div>
+
+<div class="pane" id="p2">
+ <div class="card"><h2>📏 あなたのデータ</h2>
+ <div class="g2"><div><label>年齢</label><input id="age" type="number" value="35"></div><div><label>身長(cm)</label><input id="ht" type="number" value="158"></div>
+ <div><label>体重(kg)</label><input id="wt" type="number" value="58"></div>
+ <div><label>活動量</label><select id="act"><option value="1.2">ほぼ座り仕事</option><option value="1.375" selected>軽く動く</option><option value="1.55">よく動く</option></select></div></div>
+ <p><button class="btn" onclick="predict()">予測する</button></p></div>
+ <div id="res"></div>
+</div>
+
+<script>
+var CO={"🍚 主食":[["ごはんパック(1個)",250],["食パン(6枚切り1枚)",160],["冷凍うどん(1玉)",250],["冷凍パスタ(1袋)",420],["焼きおにぎり(1個)",120]],
+"🍖 肉・魚":[["冷凍ハンバーグ(1個)",180],["鶏のから揚げ(5個)",300],["豚ロースこま切れ(100g)",230],["鶏むね肉(1枚)",250],["焼き鮭(1切れ)",150],["さばの塩焼き(1切れ)",250]],
+"🥚 卵・大豆・乳":[["たまご(1個)",75],["豆腐(1丁)",210],["納豆(1パック)",90],["牛乳(200ml)",130],["ヨーグルト(1個)",70],["チーズ(1個)",60]],
+"🥗 野菜・惣菜":[["カットサラダ(1袋)",40],["冷凍ブロッコリー(100g)",35],["コロッケ(1個)",180],["冷凍餃子(5個)",250],["シュウマイ(5個)",200],["みそ汁(1杯)",50]],
+"🍮 おやつ・飲料":[["プリン(1個)",130],["アイス(1個)",200],["クッキー(2枚)",100],["野菜ジュース(200ml)",70],["カフェオレ(200ml)",100]],
+"✏️ 自分で登録":[]};
+var OT={"🍙 食べ物":[["ごはん茶碗1杯(こぶし1個)",230],["おにぎり(にぎりこぶし1個)",180],["菓子パン(1個)",350],["ケーキ(1切れ)",350],["ポテチ(手のひら2枚分)",330],["チョコ(板の半分)",150],["ラーメン(1杯)",500],["カレーライス(1皿)",700],["お肉(手のひら1枚)",200],["お魚(手のひら1枚)",150],["フライドポテト(両手ひとすくい)",380],["サラダ(両手山盛り)",50],["みかん(こぶし1個)",45],["バナナ(1本)",90]],
+"🍺 お酒":[["氷結 砂糖ゼロ500ml 4%",170],["氷結 砂糖ゼロ500ml 7%",240],["氷結 砂糖ゼロ500ml 9%",300]],
+"🥤 飲み物":[["缶コーヒー甘い(1本)",70],["ジュース缶(1本)",150]]};
+var QS=[0.5,1,1.5,2,3,4];
+var M=[{t:"🌅 朝ごはん",a:[]},{t:"☀️ 昼ごはん",a:[]},{t:"🌙 晩ごはん",a:[]}],total=0;
+function opts(o,f){var h="";for(var g in o){h+="<optgroup label='"+g+"'>";o[g].forEach(function(x,i){h+="<option value='"+g+"|"+i+"'>"+x[0]+" "+x[1]+"kcal</option>"});h+="</optgroup>"}return h}
+function qsel(id){return "<select id='"+id+"'>"+QS.map(function(q){return "<option "+(q==1?"selected":"")+">"+q+"</option>"}).join("")+"</select>"}
+function build(){var h="";M.forEach(function(m,i){h+="<div class='card'><h2>"+m.t+"</h2>"+
+"<h3>エフコープ</h3><div class='g3'><select id='cs"+i+"'></select>"+qsel("cq"+i)+"<button class='btn' onclick='addC("+i+")'>追加</button></div>"+
+"<h3>コープ以外(ものに例えて)</h3><div class='g3'><select id='os"+i+"'>"+opts(OT)+"</select>"+qsel("oq"+i)+"<button class='btn' onclick='addO("+i+")'>追加</button></div>"+
+"<h3>自由入力</h3><div class='g3'><input id='fn"+i+"' placeholder='名前'><input id='fk"+i+"' type='number' placeholder='kcal'><button class='btn' onclick='addF("+i+")'>追加</button></div>"+
+"<div id='ls"+i+"'></div><div class='sub' id='st"+i+"'></div></div>"});
+document.getElementById("meals").innerHTML=h;fillC();upd()}
+function fillC(){M.forEach(function(m,i){var e=document.getElementById("cs"+i),v=e.value;e.innerHTML=opts(CO);if(v)e.value=v})}
+function push(i,n,k,q){M[i].a.push({n:n+(q!=1?" ×"+q:""),k:Math.round(k*q)});upd()}
+function addC(i){var v=document.getElementById("cs"+i).value.split("|"),x=CO[v[0]][v[1]];push(i,x[0],x[1],+document.getElementById("cq"+i).value)}
+function addO(i){var v=document.getElementById("os"+i).value.split("|"),x=OT[v[0]][v[1]];push(i,x[0],x[1],+document.getElementById("oq"+i).value)}
+function addF(i){var n=document.getElementById("fn"+i).value||"その他",k=+document.getElementById("fk"+i).value;if(!k)return;push(i,n,k,1);document.getElementById("fn"+i).value="";document.getElementById("fk"+i).value=""}
+function regCoop(){var n=cn.value,k=+ck.value;if(!n||!k)return;CO["✏️ 自分で登録"].push([n,k]);cn.value="";ck.value="";fillC()}
+function del(i,j){M[i].a.splice(j,1);upd()}
+function upd(){total=0;M.forEach(function(m,i){var s=0,h="";m.a.forEach(function(x,j){s+=x.k;h+="<div class='li'><span>"+x.n+"</span><span>"+x.k+"kcal<button onclick='del("+i+","+j+")'>✕</button></span></div>"});total+=s;document.getElementById("ls"+i).innerHTML=h;document.getElementById("st"+i).textContent="小計 "+s+" kcal"});
+document.getElementById("sum").textContent=total;
+var p=(bed.value||"23:30").split(":"),m=(+p[0]*60+ +p[1]-180+1440)%1440;
+deadline.innerHTML="🍽 食べ終わるのは <span class='big'>"+("0"+Math.floor(m/60)).slice(-2)+":"+("0"+m%60).slice(-2)+"</span> まで"}
+var T=document.getElementById("tabs");
+["🍽 食事","💪 筋トレ","📉 予測"].forEach(function(n,i){var b=document.createElement("button");b.textContent=n;b.className=i?"":"on";b.onclick=function(){[0,1,2].forEach(function(j){document.getElementById("p"+j).className="pane"+(j==i?" on":"");T.children[j].className=j==i?"on":""})};T.appendChild(b)});
+function fig(p){var h="<svg class='fg' viewBox='0 0 100 66'><line x1='4' y1='61' x2='96' y2='61' style='stroke:var(--pk2);stroke-width:2'/>";p[1].split("|").forEach(function(l){h+="<polyline points='"+l+"'/>"});var c=p[0].split(",");return h+"<circle cx='"+c[0]+"' cy='"+c[1]+"' r='6'/></svg><br>"+p[2]}
+var EX=[["スクワット","足を肩幅に。いすに座るつもりでお尻を後ろへ。ももとお尻に効く",[["50,12","50,20 50,40 50,60|50,24 62,34","① 立つ"],["40,20","42,28 34,48 54,48 54,60|42,32 60,32","② お尻を引いて下げる"]]],
+["ワイドスクワット","足を大きく開き、つま先を外へ。内ももとお尻に効く",[["50,10","50,18 50,38|50,38 36,60|50,38 64,60|50,22 40,32|50,22 60,32","① 足を広く立つ"],["50,18","50,26 50,46|50,46 32,52 32,60|50,46 68,52 68,60|50,30 44,38 50,40|50,30 56,38 50,40","② ひざを外へ曲げる"]]],
+["ヒップリフト","あお向けでひざを立て、お尻を持ち上げる。お尻と背中に効く",[["12,54","18,56 46,56 60,38 66,56","① あお向け"],["12,54","18,56 46,40 60,38 66,56","② お尻を上げる"]]],
+["クランチ","あお向けでおへそを見るように肩を少し上げる。お腹に効く",[["12,54","18,56 46,56 60,40 66,56","① あお向け"],["20,42","26,48 46,56 60,40 66,56|26,48 38,40","② 肩を少し起こす"]]],
+["プランク","ひじとつま先で体を一直線に。呼吸は止めない。体幹に効く",[["14,40","22,42 78,56|22,42 22,56 34,56","① 一直線をキープ"],["14,40","22,42 50,54 78,56|22,42 22,56 34,56","× お尻が下がるのはNG"]]],
+["ひざつき腕立て","ひざをついてゆっくり曲げ伸ばし。二の腕と胸に効く",[["16,34","24,38 52,50 68,58 78,50|24,38 24,58","① 腕を伸ばす"],["16,48","24,52 52,56 68,58 78,50|24,52 34,56 24,60","② ひじを曲げる"]]],
+["バックキック","四つん這いで片足を後ろへ上げる(左右交代)。ヒップアップに",[["18,32","26,38 56,40 58,52 58,60|26,38 26,60","① 四つん這い"],["18,32","26,38 56,40 58,52 58,60|56,40 82,34|26,38 26,60","② 足を後ろへ伸ばす"]]]];
+var tm={};
+ex.innerHTML=EX.map(function(e,i){return "<div class='card'><h2>"+(i+1)+". "+e[0]+"</h2><div class='figs'>"+e[2].map(function(p){return "<div>"+fig(p)+"</div>"}).join("")+"</div><p class='note'>"+e[1]+"</p><div class='timer' id='t"+i+"'>--</div><p style='text-align:center'><button class='btn' onclick='st("+i+")'>▶ スタート</button> <button class='btn' style='background:var(--pk2);color:var(--tx)' onclick='sp("+i+")'>■ リセット</button></p></div>"}).join("");
+function sp(i){clearInterval(tm[i]);document.getElementById("t"+i).textContent="--"}
+function beep(){try{var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator();o.connect(c.destination);o.frequency.value=880;o.start();setTimeout(function(){o.stop();c.close()},350)}catch(e){}}
+function st(i){sp(i);var n=+dur.value,el=document.getElementById("t"+i);el.textContent=n;tm[i]=setInterval(function(){n--;el.textContent=n>0?n:"🎉おわり!";if(n<=3)beep();if(n<=0)clearInterval(tm[i])},1000)}
+function predict(){var a=+age.value,h=+ht.value,w=+wt.value,tdee=Math.round((10*w+6.25*h-5*a-161)*+act.value),diff=tdee-total,wk=diff*7/7200,mo=diff*30/7200;
+var s="<div class='card'><h2>📊 結果</h2><p>1日の消費カロリーの目安:<b>"+tdee+" kcal</b><br>今日の食事:<b>"+total+" kcal</b><br>差:<b>"+(diff>=0?"−":"+")+Math.abs(diff)+" kcal</b></p>";
+if(!total)s+="<p>先に「食事」タブで今日食べたものを入力してね🌸</p>";else{
+s+="<p>この食べ方を毎日続けると…<br>1週間:<span class='big'>"+(wk>=0?"−":"+")+Math.abs(wk).toFixed(1)+"kg</span><br>1か月:<span class='big'>"+(mo>=0?"−":"+")+Math.abs(mo).toFixed(1)+"kg</span></p>";
+if(total<1200)s+="<p>⚠️ 食べなさすぎです。1日1200kcal未満は体調や代謝を崩しやすいので、少し増やしてね。</p>";
+if(mo>2.5)s+="<p>⚠️ 月2〜3kg以内がきれいに続くペースの目安です。</p>"}
+s+="<p class='note'>1kg=約7200kcalで計算した目安です。体質・むくみ・生理周期で前後します。</p></div><div class='card'><h2>🌷 結果が出ないときの対応</h2><ul><li>体重は2〜3週間の平均で見る(生理前は増えやすい)</li><li>間食・飲み物・調味料のカロリーを書き出して見直す</li><li>お酒は週の本数を決める。氷結500mlはごはん1杯ぶん前後</li><li>たんぱく質(卵・納豆・豆腐・鶏むね)を毎食に足す</li><li>野菜やスープを先に食べて満腹感を出す</li><li>1日1000歩多く歩く、筋トレを週3回にする</li><li>睡眠6〜7時間をとる(不足すると食欲が増える)</li><li>晩ごはんを寝る3時間前までに終える</li></ul></div>";
+res.innerHTML=s}
+build();
+</script></body></html>
